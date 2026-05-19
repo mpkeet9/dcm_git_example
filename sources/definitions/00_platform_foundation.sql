@@ -1,17 +1,14 @@
-CREATE ROLE IF NOT EXISTS {{ deployer_role }};
-CREATE ROLE IF NOT EXISTS {{ reader_role }};
-CREATE ROLE IF NOT EXISTS {{ monitor_role }};
+DEFINE WAREHOUSE {{ warehouse_name }}
+  WITH
+    warehouse_size = '{{ warehouse_size }}'
+    auto_suspend = 60
+    auto_resume = TRUE
+    initially_suspended = TRUE;
 
-CREATE WAREHOUSE IF NOT EXISTS {{ warehouse_name }}
-  WAREHOUSE_SIZE = '{{ warehouse_size }}'
-  AUTO_SUSPEND = 60
-  AUTO_RESUME = TRUE
-  INITIALLY_SUSPENDED = TRUE;
+DEFINE DATABASE {{ data_db }};
 
-CREATE DATABASE IF NOT EXISTS {{ data_db }};
-
-CREATE SCHEMA IF NOT EXISTS {{ data_db }}.{{ data_schema }};
-CREATE SCHEMA IF NOT EXISTS {{ data_db }}.{{ analytics_schema }};
+DEFINE SCHEMA {{ data_db }}.{{ data_schema }};
+DEFINE SCHEMA {{ data_db }}.{{ analytics_schema }};
 
 GRANT USAGE ON WAREHOUSE {{ warehouse_name }} TO ROLE {{ deployer_role }};
 GRANT USAGE ON WAREHOUSE {{ warehouse_name }} TO ROLE {{ reader_role }};
