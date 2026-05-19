@@ -6,6 +6,7 @@ This repository is a working reference implementation for a production-style Sno
 - each environment is isolated by **separate database/schema tiers**
 - collaboration is **Git-first** with a shared Snowsight Workspace
 - production deployment is **manual-only** through GitHub Environment approval
+- Modifications are tracked
 
 Reference: [Get Started with Snowflake DCM Projects](https://www.snowflake.com/en/developers/guides/get-started-snowflake-dcm-projects/)
 
