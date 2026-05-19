@@ -4,19 +4,19 @@ default_target: DEV
 
 targets:
   DEV:
-    account_identifier: YOUR_ORG-YOUR_ACCOUNT
+    account_identifier: SFSENORTHAMERICA-MKEETER_AWS3
     project_name: DCM_CONTROL_DEV.ADMIN.DCM_GIT_EXAMPLE_DEV
     project_owner: DCM_DEV_DEPLOYER
     templating_config: DEV
 
   STAGE:
-    account_identifier: YOUR_ORG-YOUR_ACCOUNT
+    account_identifier: SFSENORTHAMERICA-MKEETER_AWS3
     project_name: DCM_CONTROL_STAGE.ADMIN.DCM_GIT_EXAMPLE_STAGE
     project_owner: DCM_STAGE_DEPLOYER
     templating_config: STAGE
 
   PROD:
-    account_identifier: YOUR_ORG-YOUR_ACCOUNT
+    account_identifier: SFSENORTHAMERICA-MKEETER_AWS3
     project_name: DCM_CONTROL_PROD.ADMIN.DCM_GIT_EXAMPLE_PROD
     project_owner: DCM_PROD_DEPLOYER
     templating_config: PROD
