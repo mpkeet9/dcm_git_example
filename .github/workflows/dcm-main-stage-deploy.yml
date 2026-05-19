@@ -1,0 +1,55 @@
+name: DCM Main to Stage Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "manifest.yml"
+      - "sources/**"
+      - "docs/runbooks/**"
+      - ".github/workflows/dcm-*.yml"
+
+env:
+  DCM_PROJECT_PATH: ./
+  SNOWFLAKE_USER: ${{ vars.SNOWFLAKE_USER_STAGE }}
+
+jobs:
+  stage-deploy:
+    name: Plan and deploy STAGE
+    runs-on: ubuntu-latest
+    environment: STAGE
+    concurrency:
+      group: dcm-stage
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Snowflake connectivity
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-connection-test@v1
+        with:
+          target: STAGE
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+
+      - name: Run DCM plan for STAGE
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-plan@v1
+        with:
+          target: STAGE
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+          comment-on-pr: "true"
+
+      - name: Deploy to STAGE
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-deploy@v1
+        with:
+          target: STAGE
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+          allow-drops: "false"
+          test-expectations: "true"
+          comment-on-pr: "true"

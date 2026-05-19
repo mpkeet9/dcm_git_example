@@ -1,0 +1,56 @@
+name: DCM Manual Prod Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: "Branch, tag, or commit SHA to deploy"
+        required: true
+        default: "main"
+
+env:
+  DCM_PROJECT_PATH: ./
+  SNOWFLAKE_USER: ${{ vars.SNOWFLAKE_USER_PROD }}
+
+jobs:
+  prod-deploy:
+    name: Plan and deploy PROD (manual)
+    runs-on: ubuntu-latest
+    environment: PROD
+    concurrency:
+      group: dcm-prod
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout requested reference
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
+
+      - name: Test Snowflake connectivity
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-connection-test@v1
+        with:
+          target: PROD
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+
+      - name: Run DCM plan for PROD
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-plan@v1
+        with:
+          target: PROD
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+          comment-on-pr: "false"
+
+      - name: Deploy to PROD
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-deploy@v1
+        with:
+          target: PROD
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+          allow-drops: "false"
+          test-expectations: "true"
+          comment-on-pr: "false"

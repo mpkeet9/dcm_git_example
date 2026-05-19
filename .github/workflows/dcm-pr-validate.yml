@@ -1,0 +1,50 @@
+name: DCM PR Validate
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - "manifest.yml"
+      - "sources/**"
+      - "docs/runbooks/**"
+      - ".github/workflows/dcm-*.yml"
+
+env:
+  DCM_PROJECT_PATH: ./
+  SNOWFLAKE_USER: ${{ vars.SNOWFLAKE_USER_NONPROD }}
+
+jobs:
+  plan:
+    name: Plan ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [DEV, STAGE]
+    environment: ${{ matrix.target }}
+    concurrency:
+      group: dcm-pr-${{ matrix.target }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Snowflake connectivity
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-connection-test@v1
+        with:
+          target: ${{ matrix.target }}
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+
+      - name: Run DCM plan
+        uses: Snowflake-Labs/snowflake_dcm_projects/actions/dcm-plan@v1
+        with:
+          target: ${{ matrix.target }}
+          project-path: ${{ env.DCM_PROJECT_PATH }}
+          snowflake-user: ${{ env.SNOWFLAKE_USER }}
+          comment-on-pr: "true"

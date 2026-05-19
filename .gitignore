@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Snowflake DCM local artifacts
+out/
+*.dcm.plan.json
+*.dcm.deploy.json
